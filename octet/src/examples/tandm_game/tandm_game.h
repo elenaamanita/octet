@@ -71,30 +71,33 @@ namespace octet {
 	void createLevel()
 	{
 		vec3 pos = vec3(0, 0, 0);
+		int x = 0;
 		for (int i = 0; i < contents.size(); i++)
 		{
 			scene_node *node = new scene_node;
 			char c = contents[i];
 			switch (c)
 			{
-			case '\n': pos -= (vec3(10, 0, 0));
+			case '\n': pos -= (vec3(x, 0, 0));
+				x = 0;
 				pos += vec3(0, -1, 0);
 				break;
-			case '-': pos += vec3(1, 0, 0);
-				break;
-			case '/': pos += vec3(1, 0, 0);
+			case '-': 
+			case '/': 
+			case 'P': 
+				x += 1; 
+				pos += vec3(1, 0, 0);
 				break;
 			case 'B': node->translate(pos);
 				app_scene->add_child(node);
 				app_scene->add_mesh_instance(new mesh_instance(node, box, mat));
+				x += 1;
 				pos += vec3(1, 0, 0);
 				break;
 			case '_': node->translate(pos);
 				app_scene->add_child(node);
 				app_scene->add_mesh_instance(new mesh_instance(node, box, mat));
-				pos += vec3(1, 0, 0);
-				break;
-			case 'P': 
+				x += 1;
 				pos += vec3(1, 0, 0);
 				break;
 			default : break;
