@@ -16,7 +16,6 @@ namespace octet {
 	random r;
 
 	string contents;
-	char charArray[3][10];
 
 	int levelNumber = 1;
 
