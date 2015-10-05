@@ -16,9 +16,13 @@ namespace octet {
 	random r;
 
 	string contents;
-	char charArray[4][10];
+	char charArray[3][10];
 
 	int levelNumber = 1;
+
+	mesh_box *box;
+	mesh_sphere *sph;
+	material *mat;
   public:
     /// this is called when we construct the class before everything is initialised.
     tandm_game(int argc, char **argv) : app(argc, argv) {
@@ -29,6 +33,9 @@ namespace octet {
 	{
 		app_scene->reset();
 		app_scene->create_default_camera_and_lights();
+		app_scene->get_camera_instance(0)->set_far_plane(1000);
+		scene_node *cam = app_scene->get_camera_instance(0)->get_node();
+		cam->translate(vec3(0, 0, 100));
 	}
 
 	//read txt file and get level data
@@ -57,12 +64,50 @@ namespace octet {
 
 			contents = file.str().c_str();
 			printf("%s\n", contents.c_str());
+			createLevel();
+		}
+	}
+
+	void createLevel()
+	{
+		vec3 pos = vec3(0, 0, 0);
+		for (int i = 0; i < contents.size(); i++)
+		{
+			scene_node *node = new scene_node;
+			char c = contents[i];
+			switch (c)
+			{
+			case '\n': pos -= (vec3(10, 0, 0));
+				pos += vec3(0, -1, 0);
+				break;
+			case '-': pos += vec3(1, 0, 0);
+				break;
+			case '/': pos += vec3(1, 0, 0);
+				break;
+			case 'B': node->translate(pos);
+				app_scene->add_child(node);
+				app_scene->add_mesh_instance(new mesh_instance(node, box, mat));
+				pos += vec3(1, 0, 0);
+				break;
+			case '_': node->translate(pos);
+				app_scene->add_child(node);
+				app_scene->add_mesh_instance(new mesh_instance(node, box, mat));
+				pos += vec3(1, 0, 0);
+				break;
+			case 'P': 
+				pos += vec3(1, 0, 0);
+				break;
+			default : break;
+			}
 		}
 	}
 
     /// this is called once OpenGL is initialized
     void app_init() {
       app_scene =  new visual_scene();
+	  box = new mesh_box(0.5f);
+	  sph = new mesh_sphere(vec3(0, 0, 0), 1, 1);
+	  mat = new material(vec4(1, 0, 0, 1));
 	  newScene();
 	  loadTxt();
     }
