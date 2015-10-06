@@ -26,6 +26,8 @@ namespace octet {
 	mesh_sphere *sph;
 	material *wall, *floor, *flip, *end, *player;
 
+	scene_node *cam;
+
 	string contents;
 
 	int levelNumber = 1;
@@ -48,13 +50,40 @@ namespace octet {
 		delete dispatcher;
 	}
 
+	void add_part(mat4t_in coord, mesh *shape, material *mat, bool is_dynamic)
+	{
+		scene_node *node = new scene_node();
+		node->access_nodeToParent() = coord;
+		app_scene->add_child(node);
+		app_scene->add_mesh_instance(new mesh_instance(node, shape, mat));
+
+		btMatrix3x3 matrix(get_btMatrix3x3(coord));
+		btVector3 pos(get_btVector3(coord[3].xyz()));
+
+		btCollisionShape *collisionShape = shape->get_bullet_shape();
+		if (collisionShape)
+		{
+			btTransform transform(matrix, pos);
+			btDefaultMotionState *motionState = new btDefaultMotionState(transform);
+			btScalar mass = is_dynamic ? 0.5f : 0.0f;
+			btVector3 inertiaTensor;
+
+			collisionShape->calculateLocalInertia(mass, inertiaTensor);
+
+			btRigidBody *rigid_body = new btRigidBody(mass, motionState, collisionShape, inertiaTensor);
+			world->addRigidBody(rigid_body);
+			rigid_bodies.push_back(rigid_body);
+			rigid_body->setUserPointer(node);
+		}
+	}
+
 	//clear the scene
 	void newScene()
 	{
 		app_scene->reset();
 		app_scene->create_default_camera_and_lights();
 		app_scene->get_camera_instance(0)->set_far_plane(1000);
-		scene_node *cam = app_scene->get_camera_instance(0)->get_node();
+		cam = app_scene->get_camera_instance(0)->get_node();
 		cam->translate(vec3(24, -24, 50));
 	}
 
@@ -107,35 +136,60 @@ namespace octet {
 				x += 1; 
 				pos += vec3(1, 0, 0);
 				break;
-			case '_': node->translate(pos);
+			case '_': worldCoord.translate(pos);
+				add_part(worldCoord, box, floor, false);
+				rigid_bodies.back()->setFriction(0);
+				rigid_bodies.back()->setRestitution(0);
+				worldCoord.loadIdentity();
+				/*node->translate(pos);
 				app_scene->add_child(node);
-				app_scene->add_mesh_instance(new mesh_instance(node, box, floor));
+				app_scene->add_mesh_instance(new mesh_instance(node, box, floor));*/
 				x += 1;
 				pos += vec3(1, 0, 0);
 				break;
 			case 'B':
-			case 'F': node->translate(pos);
+			case 'F': worldCoord.translate(pos);
+				add_part(worldCoord, box, flip, false);
+				rigid_bodies.back()->setFriction(0);
+				rigid_bodies.back()->setRestitution(0);
+				worldCoord.loadIdentity();
+				/*node->translate(pos);
 				app_scene->add_child(node);
-				app_scene->add_mesh_instance(new mesh_instance(node, box, flip));
+				app_scene->add_mesh_instance(new mesh_instance(node, box, flip));*/
 				x += 1;
 				pos += vec3(1, 0, 0);
 				break;
-			case 'E': node->translate(pos);
+			case 'E': worldCoord.translate(pos);
+				add_part(worldCoord, box, end, false);
+				rigid_bodies.back()->setFriction(0);
+				rigid_bodies.back()->setRestitution(0);
+				worldCoord.loadIdentity();
+				/*node->translate(pos);
 				app_scene->add_child(node);
-				app_scene->add_mesh_instance(new mesh_instance(node, box, end));
+				app_scene->add_mesh_instance(new mesh_instance(node, box, end));*/
 				x += 1;
 				pos += vec3(1, 0, 0);
 				break;
-			case 'P': node->translate(pos);
+			case 'P': worldCoord.translate(pos);
+				add_part(worldCoord, box, player, false);
+				rigid_bodies.back()->setFriction(0);
+				rigid_bodies.back()->setRestitution(0);
+				worldCoord.loadIdentity();
+				/*node->translate(pos);
 				app_scene->add_child(node);
-				app_scene->add_mesh_instance(new mesh_instance(node, box, player));
+				app_scene->add_mesh_instance(new mesh_instance(node, box, player));*/
 				x += 1;
 				pos += vec3(1, 0, 0);
 				break;
 			case '-':
-			case '¦': node->translate(pos);
+			case '¦': worldCoord.translate(pos);
+				add_part(worldCoord, box, wall, false);
+				rigid_bodies.back()->setFriction(0);
+				rigid_bodies.back()->setRestitution(0);
+				worldCoord.loadIdentity();
+				/*node->translate(pos);
 				app_scene->add_child(node);
-				app_scene->add_mesh_instance(new mesh_instance(node, box, wall));
+				app_scene->add_mesh_instance(new mesh_instance(node, box, wall));*/
 				x += 1;
 				pos += vec3(1, 0, 0);
 				break;
@@ -163,6 +217,19 @@ namespace octet {
       int vx = 0, vy = 0;
       get_viewport_size(vx, vy);
       app_scene->begin_render(vx, vy);
+
+	  world->stepSimulation(1.0f / 30, 1.0f / 30, 1.0f / 30);
+	  btCollisionObjectArray &colArray = world->getCollisionObjectArray();
+	  for (unsigned i = 0; i != colArray.size(); ++i)
+	  {
+		  btCollisionObject *colObj = colArray[i];
+		  scene_node *node = (scene_node *)colObj->getUserPointer();
+		  if (node)
+		  {
+			  mat4t &modelToWorld = node->access_nodeToParent();
+			  colObj->getWorldTransform().getOpenGLMatrix(modelToWorld.get());
+		  }
+	  }
 
       // update matrices. assume 30 fps.
       app_scene->update(1.0f/30);
