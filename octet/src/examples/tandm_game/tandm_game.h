@@ -42,6 +42,7 @@ namespace octet {
 		world = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, &config);
     }
 
+	//destructor
 	~tandm_game()
 	{
 		delete world;
@@ -247,6 +248,16 @@ namespace octet {
 	  if (is_key_going_down(key_up))
 	  {
 		  rigid_bodies[480]->applyCentralForce(btVector3(0, 100, 0));
+	  }
+
+	  else if (is_key_down(key_right))
+	  {
+		  rigid_bodies[480]->applyCentralForce(btVector3(10, 0, 0));
+	  }
+
+	  else if (is_key_down(key_left))
+	  {
+		  rigid_bodies[480]->applyCentralForce(btVector3(-10, 0, 0));
 	  }
     }
   };
