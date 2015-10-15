@@ -10,56 +10,99 @@ namespace octet {
     // scene for drawing box
     ref<visual_scene> app_scene;
 
-// Needed for the physics simulation
+	///Bullet Physics
+	///set up world
 	btDefaultCollisionConfiguration config;
+	///handle collisions
 	btCollisionDispatcher *dispatcher;
+	///handle collisions
 	btDbvtBroadphase *broadphase;
+	///resolve collisions
 	btSequentialImpulseConstraintSolver *solver;
+	///physics world
 	btDiscreteDynamicsWorld *world;
+	///set the shader
+	param_shader *b;
+	///material for the shader
+	ref<param_uniform> m_amb;
+	///light for the shader
+	ref<param_uniform> l_amb;
+	///material diffuse for the shader
+	ref<param_uniform> m_dif;
+	///light diffuse for the shader
+	ref<param_uniform> l_dif;
+	///the material specular for the shader
+	ref<param_uniform> m_spec;
+	/// light specular for the shader
+	ref<param_uniform> l_spec;
+	///shining for the  shader
+	ref<param_uniform> shnn;
+	/// light position for the shader
+	ref<param_uniform> lightpos;
+	///the material for the shader
+	ref<material> shiningbox;
 
-	dynarray<btRigidBody*> rigid_bodies;
-	dynarray<scene_node*> nodes;
+	//////parameters values for the shader
+	float shnnval = 32;
 
-	//Random objects
-	random randomGenerator;
+	vec3 amb;
 
-	//Camera objects
-	mouse_ball camera;
+	vec3 lamb;
 
-	void add_box(mat4t_in modelToWorld, vec3p_in size, material *mat, bool is_dynamic = true){
+	vec3 diff;
 
-		btMatrix3x3 matrix(get_btMatrix3x3(modelToWorld));
-		btVector3 pos(get_btVector3(modelToWorld[3].xyz()));
+	vec3 ldiff;
 
-		btCollisionShape *shape = new btBox2dShape(get_btVector3(size));
-		btTransform transform(matrix, pos);
+	vec3 spec;
 
-		btDefaultMotionState *motionState = new btDefaultMotionState(transform);
-		btScalar mass = is_dynamic ? 1.0f : 0.0f;
-		btVector3 inertiaTensor;
+	vec3 lspec;
 
-		shape->calculateLocalInertia(mass, inertiaTensor);
+	vec3 light_pos;
 
-		btRigidBody *rigid_body = new btRigidBody(mass, motionState, shape, inertiaTensor);
-		world->addRigidBody(rigid_body);
-		rigid_bodies.push_back(rigid_body);
+	void init_shiningbox(){
 
-		mesh_box *box = new mesh_box(size);
-		scene_node *node = new scene_node(modelToWorld, atom_);
-		nodes.push_back(node);
+		b = new param_shader("src/examples/example_shapes/base_vertex.vs", "src/examples/example_shapes/shining.fs");
+		shiningbox = new material(vec4(1.0f, 1.0f, 1.0f, 1.0f), b);
+		atom_t atom_shinn = app_utils::get_atom("shnn");
+		shnn = shiningbox->add_uniform(&shnnval, atom_shinn, GL_FLOAT, 1, param::stage_fragment);
+		atom_t atom_m_amb = app_utils::get_atom("m_ambient");
+		amb = vec3(0.4f, 0.4f, 0.4f);
+		m_amb = shiningbox->add_uniform(&amb, atom_m_amb, GL_FLOAT_VEC3, 1, param::stage_fragment);
+		atom_t atom_l_amb = app_utils::get_atom("l_ambient");
+		lamb = vec3(0.55f, 0.55f, 0.55f);
+		l_amb = shiningbox->add_uniform(&lamb, atom_l_amb, GL_FLOAT_VEC3, 1, param::stage_fragment);
 
-		app_scene->add_child(node);
-		app_scene->add_mesh_instance(new mesh_instance(node, box, mat));
+		atom_t atom_m_diff = app_utils::get_atom("m_diffuse");
+		diff = vec3(0.6f, 0.6f, 0.6f);
+		m_dif = shiningbox->add_uniform(&diff, atom_m_diff, GL_FLOAT_VEC3, 1, param::stage_fragment);
+
+		atom_t atom_l_diff = app_utils::get_atom("l_diffuse");
+		ldiff = vec3(0.6f, 0.6f, 0.6f);
+		l_dif = shiningbox->add_uniform(&ldiff, atom_l_diff, GL_FLOAT_VEC3, 1, param::stage_fragment);
+
+		atom_t atom_m_spec = app_utils::get_atom("m_specular");
+		spec = vec3(0.9f, 0.9f, 0.9f);
+		m_spec = shiningbox->add_uniform(&spec, atom_m_spec, GL_FLOAT_VEC3, 1, param::stage_fragment);
+
+		atom_t atom_l_spec = app_utils::get_atom("l_specular");
+		lspec = vec3(1.0f, 1.0f, 1.0f);
+		l_spec = shiningbox->add_uniform(&lspec, atom_l_spec, GL_FLOAT_VEC3, 1, param::stage_fragment);
+
+		atom_t atom_lightpos = app_utils::get_atom("lightpos");
+		light_pos = vec3(app_scene->get_light_instance(0)->get_node()->access_nodeToParent().w().x(), app_scene->get_light_instance(0)->get_node()->access_nodeToParent().w().y(), app_scene->get_light_instance(0)->get_node()->access_nodeToParent().w().z());
+		lightpos = shiningbox->add_uniform(&light_pos, atom_lightpos, GL_FLOAT_VEC3, 1, param::stage_fragment);
 	}
 
+	enum Directions
+	{
+		UP,
+		DOWN,
+		LEFT,
+		RIGHT
 
+	};
   public:
-	  ///this is called when we construct the class before everything is initialised.
     example_shapes(int argc, char **argv) : app(argc, argv) {
-		dispatcher = new btCollisionDispatcher(&config);
-		broadphase = new btDbvtBroadphase();
-		solver = new btSequentialImpulseConstraintSolver();
-		world = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, &config);
     }
 
     ~example_shapes() {
@@ -70,80 +113,45 @@ namespace octet {
     }
 
     /// this is called once OpenGL is initialized
-	void app_init() {
-		app_scene = new visual_scene();
-		app_scene->create_default_camera_and_lights();
-		app_scene->get_camera_instance(0)->get_node()->translate(vec3(0, 4, 0));
-		camera.init(this, 4, 100);
-		mat4t modelToWorld;
-		material *floor_mat = new material(vec4(0, 1, 0, 1));
+    void app_init() {
+      app_scene =  new visual_scene();
+      app_scene->create_default_camera_and_lights();
+      app_scene->get_camera_instance(0)->get_node()->translate(vec3(0, 4, 0));
+	  app_scene->get_camera_instance(0)->get_node()->translate(vec3(0, 4, 0));
+	  app_scene->get_camera_instance(0)->set_far_plane(5500);
+	  app_scene->get_light_instance(0)->get_node()->access_nodeToParent().rotateY(90);
 
-		// add the ground (as a static object)
-		//add_box(modelToWorld, vec3(200.0f, 0.5f, 200.0f), floor_mat, false);
+	  init_shiningbox();
 
+      //material *red = new material(vec4(1, 0, 0, 1));
+      material *green = new material(vec4(0, 1, 0, 1));
+      material *blue = new material(vec4(0, 0, 1, 1));
 
-		// Various colors for the different objects
-		material *red = new material(vec4(1, 0, 0, 1));
-		material *green = new material(vec4(0, 1, 0, 1));
-		material *blue = new material(vec4(0, 0, 1, 1));
-		material *purple = new material(vec4(1, 0, 1, 1));
-		material *yellow = new material(vec4(1, 1, 0, 0));
-		material *white = new material(vec4(1, 1, 1, 1));
+      mat4t mat;
+    ///  mat.translate(-3, 6, 0);
+    ///  app_scene->add_shape(mat, new mesh_sphere(vec3(2, 2, 2), 2), red, true);
 
-		modelToWorld.translate(-3, 1, 0);
-		/*
-		// create funny shapes
-		int direction = 1, limit = 10;
-		for (int j = 0; j != 10; ++j){
-			for (int i = 0; i != limit; ++i){
-				// generate random colors
-				 int valor = randomGenerator.get(0, 3);
-				if (valor == 0)
-					add_box(modelToWorld, vec3(0.5f), blue);
-				else if (valor == 1)
-					add_box(modelToWorld, vec3(0.5f), red);
-				else if (valor == 2)
-					add_box(modelToWorld, vec3(0.5f), yellow);
-				modelToWorld.translate(1.5*direction, 0, 0);
-			}
-			modelToWorld.translate(-2.25*direction, 1, 0);
-			direction = 1 * direction;
-			++limit;
-		}*/
-	
-
-
-	  mat4t mat;
-      mat.translate(-3, 6, 0);
-      app_scene->add_shape(mat, new mesh_sphere(vec3(2, 2, 2), 2), red, true);
-
-	  mat.loadIdentity();
-	  mat.translate(3, 6, 0);
-	  app_scene->add_shape(mat, new mesh_sphere(vec3(0, 0, 0), 2), purple, true);
-
+	  ///import boxes
       mat.loadIdentity();
       mat.translate(0, 10, 0);
-      app_scene->add_shape(mat, new mesh_box(vec3(2, 2, 2)), green, true);
-
-	  mat.loadIdentity();
-	  mat.translate(0, 10, 0);
-	  app_scene->add_shape(mat, new mesh_box(vec3(2, 2, 2)), yellow, true);
-
-      mat.loadIdentity();
-      mat.translate( 3, 6, 0);
-      app_scene->add_shape(mat, new mesh_cylinder(zcylinder(vec3(0, 0, 0), 2, 4)), blue, true);
-
-	  //create illusion
-	  mat.loadIdentity();
-	  add_box(modelToWorld, vec3(100.0f, 0.5f, 100.0f), blue, true);
+      //app_scene->add_shape(mat, new mesh_box(vec3(1, 1, 1)), blue, true);
+	  ///add more boxes in the scene
+	  for (size_t i = 0; i < 10; i++)
+	  {
+		  app_scene->add_shape(mat, new mesh_box(vec3(1, 1, 1)), green, true);
+	  }
 	  
+
+
+      ///mat.loadIdentity();
+     /// mat.translate( 3, 6, 0);
+     /// app_scene->add_shape(mat, new mesh_cylinder(zcylinder(vec3(0, 0, 0), 2, 4)), blue, true);
 
       // ground
       mat.loadIdentity();
       mat.translate(0, -1, 0);
-      app_scene->add_shape(mat, new mesh_box(vec3(200, 1, 200)), green, false);
+      app_scene->add_shape(mat, new mesh_box(vec3(200, 1, 200)), blue, false);
     }
-
 
     /// this is called to draw the world
     void draw_world(int x, int y, int w, int h) {
@@ -151,24 +159,8 @@ namespace octet {
       get_viewport_size(vx, vy);
       app_scene->begin_render(vx, vy);
 
-	  //Move the camera with the mouse
-	  camera.update(app_scene->get_camera_instance(0)->get_node()->access_nodeToParent());
-       
-	  world->stepSimulation(1.0f / 30);
-	  for (unsigned i = 0; i != rigid_bodies.size(); i++){
-		  btRigidBody *rigid_body = rigid_bodies[i];
-		  btQuaternion btq = rigid_body->getOrientation();
-		  btVector3 pos = rigid_body->getCenterOfMassPosition();
-		  quat q(btq[0], btq[1], btq[2], btq[3]);
-		  mat4t modelToworld = q;
-		  modelToworld[3] = vec4(pos[0], pos[1], pos[2], 1);
-		  nodes[i]->access_nodeToParent() = modelToworld;
-
-	  }
-
       // update matrices. assume 30 fps.
-       app_scene->update(1.0f / 30);
-	   //app_scene->render((float)vx / vy);
+      app_scene->update(1.0f/30);
 
       // draw the scene
       app_scene->render((float)vx / vy);
