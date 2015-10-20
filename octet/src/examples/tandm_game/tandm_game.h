@@ -119,7 +119,7 @@ namespace octet {
 	{
 		std::fstream myFile;
 		std::stringstream fileName;
-		fileName << "level2" << ".txt";
+		fileName << "level" <<num<< ".txt";
 		myFile.open(fileName.str().c_str(), std::ios::in);
 		if (!myFile.is_open())
 		{
@@ -250,6 +250,7 @@ namespace octet {
 		  loadTxt(2);
 	  }
 
+	  //flipper test
 	  if (is_key_going_down('F'))
 	  {
 		  for (int i = 0; i < flippers.size(); i++)
