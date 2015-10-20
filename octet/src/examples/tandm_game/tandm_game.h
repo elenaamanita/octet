@@ -22,6 +22,7 @@ namespace octet {
 	mat4t worldCoord;
 
 	dynarray<btRigidBody*> rigid_bodies;
+	dynarray<btHingeConstraint*> flippers;
 	mesh_box *box, *flipperMesh, *blockerMesh;
 	mesh_sphere *sph;
 	material *wall, *floor, *flip, *end, *player;
@@ -85,6 +86,13 @@ namespace octet {
 		rigid_bodies.back()->setFriction(0);
 		rigid_bodies.back()->setRestitution(0);
 		worldCoord.loadIdentity();
+		if (letter == 'B' || letter == 'F')
+		{
+			btHingeConstraint *flipper = new btHingeConstraint((*rigid_bodies.back()), btVector3(0.25f*0.95f, 0, 0.125f*-1.2f),btVector3(0,0,1.0f),false);
+			flipper->setLimit(-3.14f*0.2f, -3.14f*0.2f);
+			flippers.push_back(flipper);
+			world->addConstraint(flipper);
+		}
 	}
 
 	//clear the scene
@@ -111,7 +119,7 @@ namespace octet {
 	{
 		std::fstream myFile;
 		std::stringstream fileName;
-		fileName << "level" <<num<< ".txt";
+		fileName << "level2" << ".txt";
 		myFile.open(fileName.str().c_str(), std::ios::in);
 		if (!myFile.is_open())
 		{
@@ -160,7 +168,7 @@ namespace octet {
 				pos += vec3(1, 0, 0);
 				break;
 			case 'B':
-			case 'F': add_rigid_body(pos, flipperMesh, flip, c, false);
+			case 'F': add_rigid_body(pos, flipperMesh, flip, c, true);
 				x += 1;
 				pos += vec3(1, 0, 0);
 				break;
@@ -240,6 +248,14 @@ namespace octet {
 	  {
 		  newScene();
 		  loadTxt(2);
+	  }
+
+	  if (is_key_going_down('F'))
+	  {
+		  for (int i = 0; i < flippers.size(); i++)
+		  {
+			  flippers[i]->getRigidBodyA().applyTorqueImpulse(btVector3(0, 0, 500));
+		  }
 	  }
     }
   };
