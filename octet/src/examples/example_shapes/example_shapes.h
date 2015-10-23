@@ -125,6 +125,35 @@ namespace octet {
 			character = new material(vec4(0, 1, 1, 0));
 		}
 
+		///read txt file
+		void loadTxt(int num)
+		{
+			std::fstream myFile;
+			std::stringstream fileName;
+			fileName << "level" << num << ".txt";
+			myFile.open(fileName.str().c_str(), std::ios::in);
+			if (!myFile.is_open())
+			{
+				printf("File not opened/is missing\n");
+			}
+
+			else
+			{
+				printf("File open\n");
+				myFile.seekg(0, myFile.end);
+				int length = myFile.tellg();
+				myFile.seekg(0, myFile.beg);
+
+				std::stringstream file;
+				file.str(std::string());
+				file << myFile.rdbuf();
+				myFile.close();
+
+				contents = file.str().c_str();
+				//printf("%s\n", contents.c_str());
+				//createLevel();
+			}
+		}
 
 		/// this is called once OpenGL is initialized
 		void app_init() {
