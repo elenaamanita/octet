@@ -151,7 +151,53 @@ namespace octet {
 
 				contents = file.str().c_str();
 				//printf("%s\n", contents.c_str());
-				//createLevel();
+				 createTemp();
+			}
+		}
+
+		//create the template according our file
+		void createTemp()
+		{
+			vec3 pos = vec3(0, 0, 0);
+			int x = 0;
+			for (int i = 0; i < contents.size(); i++)
+			{
+				char c = contents[i];
+				switch (c)
+				{
+				case '\n': pos -= (vec3(x, 0, 0));
+					x = 0;
+					pos += vec3(0, -1, 0);
+					break;
+				case ' ':
+				case '/':
+					x += 1;
+					pos += vec3(1, 0, 0);
+					break;
+				case '_': add_rigid_body(pos, box, ground, c, false);
+					x += 1;
+					pos += vec3(1, 0, 0);
+					break;
+				case 'B':
+				case 'F': add_rigid_body(pos, bulletMesh, hit, c, true);
+					x += 1;
+					pos += vec3(1, 0, 0);
+					break;
+				case 'E': add_rigid_body(pos, box, over, c, false);
+					x += 1;
+					pos += vec3(1, 0, 0);
+					break;
+				case 'P': add_rigid_body(pos, box, character, c, true);
+					x += 1;
+					pos += vec3(1, 0, 0);
+					break;
+				case '-':
+				case '¦': add_rigid_body(pos, box, mat, c, false);
+					x += 1;
+					pos += vec3(1, 0, 0);
+					break;
+				default: break;
+				}
 			}
 		}
 
@@ -160,6 +206,7 @@ namespace octet {
 
 			app_scene = new visual_scene();
 			newScene();
+			loadTxt(1);
 
 			
 		    app_scene->create_default_camera_and_lights();
