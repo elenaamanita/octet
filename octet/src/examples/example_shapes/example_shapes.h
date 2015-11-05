@@ -14,6 +14,8 @@ namespace octet {
 		// scene for drawing box
 		ref<visual_scene> app_scene;
 
+		ref<camera_instance> camera;
+
 		// Needed for the physics simulation
 		///Bullet Physics
 		///set up world
@@ -70,6 +72,8 @@ namespace octet {
 			delete broadphase;
 			delete dispatcher;
 		}
+
+
 
 		///create a mesh with Rigid Body
 		void add_part(mat4t_in coord, mesh *shape, material *mat, bool is_dynamic, char letter)
@@ -193,7 +197,7 @@ namespace octet {
 			turn = new material(vec4(0, 0, 1, 1));
 			end = new material(vec4(1, 1, 1, 1));
 			character = new material(vec4(0, 1, 1, 0));
-			
+
 
 			join = btVector3(0, 0, 0);
 		}
@@ -308,9 +312,11 @@ namespace octet {
 		void app_init() {
 
 			app_scene = new visual_scene();
+
 			newScene();
 			loadTxt(4);
 
+			///material *background = new material(new image("example_shapes/background.gif"), NULL, atten_shader, true);
 			material *green = new material(vec4(0, 1, 0, 1));
 
 			mat4t mat;
@@ -347,9 +353,12 @@ namespace octet {
 			}
 			*/
 		}
+
 		/// this is called to draw the world
 		void draw_world(int x, int y, int w, int h)
 		{
+
+
 			int vx = 0, vy = 0;
 			get_viewport_size(vx, vy);
 			app_scene->begin_render(vx, vy);
@@ -402,6 +411,7 @@ namespace octet {
 				mat.translate(0, 14, 0);
 				app_scene->add_shape(mat, new mesh_box(vec3(500, 12, 500)), lightyellow, false);
 			}
+
 			if (is_key_going_down('3') || is_key_going_down(VK_NUMPAD3))
 			{
 				newScene();
@@ -416,17 +426,45 @@ namespace octet {
 				mat.translate(0, 14, 0);
 				app_scene->add_shape(mat, new mesh_box(vec3(500, 12, 500)), magenta, false);
 			}
+			//KEY INPUTS
+			if (is_key_down(VK_SPACE))
+			{
+				rigid_bodies[character_node]->applyCentralForce(btVector3(0, 25, 0));
+			}
+
+			else if (is_key_down(key_right))
+			{
+				rigid_bodies[character_node]->applyCentralForce(btVector3(15, 0, 0));
+			}
+
+			else if (is_key_down(key_left))
+			{
+				rigid_bodies[character_node]->applyCentralForce(btVector3(-15, 0, 0));
+			}
+			else if (is_key_down(key_down))
+			{
+				rigid_bodies[character_node]->applyCentralForce(btVector3(0, -15, 0));
+			}
+
+			else if (is_key_down(key_up))
+			{
+				rigid_bodies[character_node]->applyCentralForce(btVector3(0, 15, 0));
+			}
+
 			
-			//bullet test
+
+			/*//bullet test
 			if (is_key_going_down('F'))
 			{
-				for (int i = 0; i < bullets.size(); i++)
-				{
-					bullets[i]->getRigidBodyA().applyTorqueImpulse(btVector3(0, 0, 500));
-				}
-			};
+			for (int i = 0; i < bullets.size(); i++)
+			{
+			bullets[i]->getRigidBodyA().applyTorqueImpulse(btVector3(0, 0, 500));
+			}
+			*/
 		}
 	};
 }
+	
+
 
 
