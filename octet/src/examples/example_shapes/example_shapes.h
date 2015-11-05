@@ -29,28 +29,19 @@ namespace octet {
 
 		mat4t worldCall;
 
-		btRigidBody *staticObject;
-
 		dynarray<btRigidBody*> rigid_bodies;
 		dynarray<btHingeConstraint*> bullets;
-
-		dynarray<btGeneric6DofConstraint*> springBodies;
-
 		mesh_box *box, *bulletMesh, *blockerMesh;
 		mesh_sphere *sph;
-		material *wall, *floor, *turn, *end, *character;
+		material *mat, *ground, *hit, *over, *character;
 
 		scene_node *cam;
 
-		///character_id
-		int character_node;
-
-		///hinge variables
-		bool hingeOffsetNotSet = false;
-		btVector3 join;
-
-
 		string contents;
+
+
+		//Random objects
+		///random randomGenerator;
 
 
 	public:
@@ -62,15 +53,14 @@ namespace octet {
 			solver = new btSequentialImpulseConstraintSolver();
 			world = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, &config);
 		}
+
 		///clear
 		~example_shapes() {
-
 			delete world;
 			delete solver;
 			delete broadphase;
 			delete dispatcher;
 		}
-
 		///create a mesh with Rigid Body
 		void add_part(mat4t_in coord, mesh *shape, material *mat, bool is_dynamic, char letter)
 		{
@@ -104,81 +94,21 @@ namespace octet {
 		{
 			worldCall.translate(position);
 			add_part(worldCall, msh, mat, active, letter);
-
 			rigid_bodies.back()->setFriction(0);
 			rigid_bodies.back()->setRestitution(0);
-			///worldCall.loadIdentity();
-			///if (letter == 'B' || letter == 'F')
-			///{
-			///	btHingeConstraint *bullet = new btHingeConstraint((*rigid_bodies.back()), btVector3(0.25f*0.95f, 0, 0.125f*-1.2f), btVector3(0, 0, 1.0f), false);
-			///bullet->setLimit(-3.14f*0.2f, -3.14f*0.2f);
-			///bullets.push_back(bullet);
-			///	world->addConstraint(bullet);
-			///}
-			///}
-			//static object
-			if (letter == 'B')
-			{
-				staticObject = rigid_bodies.back();
-			}
-
-			///character object
-			if (letter == 'C')
-			{
-				//gets the character node
-				character_node = rigid_bodies.size() - 1;
-				//constraints z axis movement
-				rigid_bodies.back()->setLinearFactor(btVector3(1, 1, 0));
-				//constraints x and y axis rotation
-				rigid_bodies.back()->setAngularFactor(btVector3(0, 0, 1));
-			}
-			///spring stoppers
-			if (letter == 'S')
-			{
-				btTransform localA, localB;
-				localA.setIdentity();
-				localB.setIdentity();
-				localA.getOrigin() = btVector3(position.x(), position.y(), position.z());
-				btRigidBody *springBody = rigid_bodies.back();
-				springBody->setLinearFactor(btVector3(0, 1, 0));
-				btGeneric6DofSpringConstraint *springConstraint = new btGeneric6DofSpringConstraint(*staticObject, *springBody, localA, localB, true);
-				springConstraint->setLimit(0, 0, 0); //X Axis
-				springConstraint->setLimit(1, 3, -3); //Y Axis
-				springConstraint->setLimit(2, 3, -3); //Z Axis
-				springConstraint->setLimit(3, 0, 0);
-				springConstraint->setLimit(4, 0, 0);
-				springConstraint->setLimit(5, 0, 0);
-				springConstraint->enableSpring(1, true); //int index implies the axis you want to move in
-				springConstraint->setStiffness(1, 100);
-				world->addConstraint(springConstraint);
-				rigid_bodies.back()->applyCentralForce(btVector3(0, 100, 0));
-				springBodies.push_back(springConstraint);
-			}
-			///hinge
-			if (letter == 'H')
-			{
-				if (!hingeOffsetNotSet)
-				{
-					join = get_btVector3(bulletMesh->get_aabb().get_max());
-					join = btVector3(join.x()*0.5f, join.y()*0.0f, join.z()*0.0f);
-					printf("%g %g %g\n", join.x(), join.y(), join.z());
-					hingeOffsetNotSet = true;
-				}
-				btRigidBody *hingeBody = rigid_bodies.back();
-				btHingeConstraint *bulletHinge = new btHingeConstraint(*hingeBody, join, btVector3(0, 0, 1));
-				world->addConstraint(bulletHinge);
-				bullets.push_back(bulletHinge);
-			}
-
 			worldCall.loadIdentity();
+			if (letter == 'A' || letter == 'D')
+			{
+				btHingeConstraint *bullet = new btHingeConstraint((*rigid_bodies.back()), btVector3(0.25f*0.95f, 0, 0.125f*-1.2f), btVector3(0, 0, 1.0f), false);
+				bullet->setLimit(-3.14f*0.2f, -3.14f*0.2f);
+				bullets.push_back(bullet);
+				world->addConstraint(bullet);
+			}
 		}
+
 		//clear the scene
 		void newScene()
 		{
-
-			rigid_bodies.reset();
-			bullets.reset();
-
 			app_scene->reset();
 			app_scene->create_default_camera_and_lights();
 			app_scene->get_camera_instance(0)->set_far_plane(1000);
@@ -188,17 +118,14 @@ namespace octet {
 			bulletMesh = new mesh_box(vec3(0.5f, 0.25f, 0.5f));
 			blockerMesh = new mesh_box(vec3(0.5f, 1, 0.5f));
 			sph = new mesh_sphere(vec3(0, 0, 0), 1, 1);
-			wall = new material(vec4(1, 0, 0, 1));
-			floor = new material(vec4(0, 1, 0, 1));
-			turn = new material(vec4(0, 0, 1, 1));
-			end = new material(vec4(1, 1, 1, 1));
+			mat = new material(vec4(1, 0, 0, 1));
+			ground = new material(vec4(0, 1, 0, 1));
+			hit = new material(vec4(0, 0, 1, 1));
+			over = new material(vec4(1, 1, 1, 1));
 			character = new material(vec4(0, 1, 1, 0));
-			
-
-			join = btVector3(0, 0, 0);
 		}
 
-		//read txt file and get level data
+		///read txt file
 		void loadTxt(int num)
 		{
 			std::fstream myFile;
@@ -224,12 +151,12 @@ namespace octet {
 
 				contents = file.str().c_str();
 				//printf("%s\n", contents.c_str());
-				createLevel();
+				 createTemp();
 			}
 		}
 
-		//create the level according to the txt file
-		void createLevel()
+		//create the template according our file
+		void createTemp()
 		{
 			vec3 pos = vec3(0, 0, 0);
 			int x = 0;
@@ -247,55 +174,25 @@ namespace octet {
 					x += 1;
 					pos += vec3(1, 0, 0);
 					break;
-				case '_': add_rigid_body(pos, box, floor, c, false);
-					x += 1;
-					pos += vec3(1, 0, 0);
-					break;
-
-
-					/*case 'B':
-					case 'F': add_rigid_body(pos, bulletMesh, flip, c, true);
-					x += 1;
-					pos += vec3(1, 0, 0);
-					break;
-					case 'E': add_rigid_body(pos, box, end, c, false);
-					x += 1;
-					pos += vec3(1, 0, 0);
-					break;
-					case 'P': add_rigid_body(pos, box, player, c, true);
-					x += 1;
-					pos += vec3(1, 0, 0);
-					break;
-					case '-':
-					case '¦': add_rigid_body(pos, box, wall, c, false);
-					x += 1;
-					pos += vec3(1, 0, 0);
-					break;
-					default: break;
-					}
-					}
-					}
-					*/
-
-				case 'W':add_rigid_body(pos, box, wall, c, false);
+				case '_': add_rigid_body(pos, box, ground, c, false);
 					x += 1;
 					pos += vec3(1, 0, 0);
 					break;
 				case 'B':
-				case 'A': add_rigid_body(pos, bulletMesh, turn, c, true);
+				case 'F': add_rigid_body(pos, bulletMesh, hit, c, true);
 					x += 1;
 					pos += vec3(1, 0, 0);
 					break;
-				case 'D': add_rigid_body(pos, box, end, c, false);
+				case 'E': add_rigid_body(pos, box, over, c, false);
 					x += 1;
 					pos += vec3(1, 0, 0);
 					break;
-				case 'C': add_rigid_body(pos, box, character, c, true);
+				case 'P': add_rigid_body(pos, box, character, c, true);
 					x += 1;
 					pos += vec3(1, 0, 0);
 					break;
 				case '-':
-				case '¦': add_rigid_body(pos, box, wall, c, false);
+				case '¦': add_rigid_body(pos, box, mat, c, false);
 					x += 1;
 					pos += vec3(1, 0, 0);
 					break;
@@ -309,47 +206,39 @@ namespace octet {
 
 			app_scene = new visual_scene();
 			newScene();
-			loadTxt(4);
+			loadTxt(1);
 
-			material *green = new material(vec4(0, 1, 0, 1));
-
-			mat4t mat;
-
-			// ground
-			mat.loadIdentity();
-			mat.translate(0, 14, 0);
-			app_scene->add_shape(mat, new mesh_box(vec3(500, 12, 500)), green, false);
-
-			/*
-			app_scene->create_default_camera_and_lights();
-			app_scene->get_camera_instance(0)->get_node()->translate(vec3(0, 4, 0));
+			
+		    app_scene->create_default_camera_and_lights();
+		    app_scene->get_camera_instance(0)->get_node()->translate(vec3(0, 4, 0));
 
 			material *red = new material(vec4(1, 0, 0, 1));
 			material *green = new material(vec4(0, 1, 0, 1));
 			material *blue = new material(vec4(0, 0, 1, 1));
 
 			mat4t mat;
-			mat.translate(-3, 6, 0);
-			app_scene->add_shape(mat, new mesh_sphere(vec3(2, 2, 2), 2), red, true);
+			
 
-			mat.loadIdentity();
-			mat.translate(0, 10, 0);
-			app_scene->add_shape(mat, new mesh_box(vec3(2, 2, 2)), red, true);
+			///mat.translate(-3, 6, 0);
+			///app_scene->add_shape(mat, new mesh_sphere(vec3(2, 2, 2), 2), red, true);
 
-			mat.loadIdentity();
-			mat.translate( 3, 6, 0);
-			app_scene->add_shape(mat, new mesh_cylinder(zcylinder(vec3(0, 0, 0), 2, 4)), blue, true);
+			///mat.loadIdentity();
+			///mat.translate(0, 10, 0);
+			///app_scene->add_shape(mat, new mesh_box(vec3(2, 2, 2)), red, true);
 
+			///mat.loadIdentity();
+			///mat.translate(3, 6, 0);
+			///app_scene->add_shape(mat, new mesh_cylinder(zcylinder(vec3(0, 0, 0), 2, 4)), blue, true);
+			
 			// ground
 			mat.loadIdentity();
 			mat.translate(0, -1, 0);
 			app_scene->add_shape(mat, new mesh_box(vec3(200, 1, 200)), green, false);
-			}
-			*/
+			
 		}
+
 		/// this is called to draw the world
-		void draw_world(int x, int y, int w, int h)
-		{
+		void draw_world(int x, int y, int w, int h) {
 			int vx = 0, vy = 0;
 			get_viewport_size(vx, vy);
 			app_scene->begin_render(vx, vy);
@@ -372,61 +261,6 @@ namespace octet {
 
 			// draw the scene
 			app_scene->render((float)vx / vy);
-
-
-			if (is_key_going_down('1') || is_key_going_down(VK_NUMPAD1))
-			{
-				newScene();
-				loadTxt(1);
-
-				material *lightblue = new material(vec4(0, 1, 1, 1));
-
-				mat4t mat;
-
-				// ground
-				mat.loadIdentity();
-				mat.translate(0, 14, 0);
-				app_scene->add_shape(mat, new mesh_box(vec3(500, 12, 500)), lightblue, false);
-			}
-			if (is_key_going_down('2') || is_key_going_down(VK_NUMPAD2))
-			{
-				newScene();
-				loadTxt(2);
-
-				material *lightyellow = new material(vec4(1, 1, 0, 0));
-
-				mat4t mat;
-
-				// ground
-				mat.loadIdentity();
-				mat.translate(0, 14, 0);
-				app_scene->add_shape(mat, new mesh_box(vec3(500, 12, 500)), lightyellow, false);
-			}
-			if (is_key_going_down('3') || is_key_going_down(VK_NUMPAD3))
-			{
-				newScene();
-				loadTxt(3);
-
-				material *magenta = new material(vec4(1, 0, 0, 0));
-
-				mat4t mat;
-
-				// ground
-				mat.loadIdentity();
-				mat.translate(0, 14, 0);
-				app_scene->add_shape(mat, new mesh_box(vec3(500, 12, 500)), magenta, false);
-			}
-			
-			//bullet test
-			if (is_key_going_down('F'))
-			{
-				for (int i = 0; i < bullets.size(); i++)
-				{
-					bullets[i]->getRigidBodyA().applyTorqueImpulse(btVector3(0, 0, 500));
-				}
-			};
 		}
 	};
 }
-
-
