@@ -5,19 +5,24 @@
 
 
 
-  WWWWWWWWWWWWW         WWWWWWWWWWWWW    WWWWWWWW
-
-           A         A
-
-WWWWWWWWW        WWWWWWWWWWWW             WWWWWWWWWWWWWWWW
-           C
-  
-           A            A
-
-         WWWWWWWWWWWWW           WWWWWWWWWWWWWW
-                    A
 
 
-      WWWWWWW      A      WWWWWWWWW 
-  
-WWWWWWW          WWWWWWW           WWWWWWWWWWWWWWWWW
+
+
+W  WWWWWWWWWWWWW         WWWWWWWWWWWWW    WWWWWWWW        W
+W                                                         W
+W                    E                           E        W                                                          
+W                                                         W
+WWWWWWWWW        WWWWWWWWWWWW             WWWWWWWWWWWWWWWWW
+W                                                         W
+W          C                         E                    W                                                          
+W                                E                        W                                                          
+W                                                         W
+W                                                         W
+W         WWWWWWWWWWWWW           WWWWWWWWWWWWWW          W
+W                                                         W
+W           E                                             W
+W                                                         W
+W     WWWWWWW             WWWWWWWWW                       W
+W  E                                   E                  W
+WWWWWWW          WWWWWWW           WWWWWWWWWWWWWWWWW      W       
