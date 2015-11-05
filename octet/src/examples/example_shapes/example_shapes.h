@@ -40,12 +40,15 @@ namespace octet {
 
 		mesh_box *box, *bulletMesh, *blockerMesh;
 		mesh_sphere *sph;
-		material *wall, *floor, *turn, *end, *character;
+		material *wall, *floor, *turn, *end, *enemy, *character;
 
 		scene_node *cam;
 
 		///character_id
 		int character_node;
+
+		///enemy_id
+		int enemy_node;
 
 		///hinge variables
 		bool hingeOffsetNotSet = false;
@@ -136,6 +139,17 @@ namespace octet {
 				//constraints x and y axis rotation
 				rigid_bodies.back()->setAngularFactor(btVector3(0, 0, 1));
 			}
+
+			///enemy object
+			if (letter == 'E')
+			{
+				//gets the enemy node
+				enemy_node = rigid_bodies.size() - 1;
+				//constraints z axis movement
+				rigid_bodies.back()->setLinearFactor(btVector3(1, 1, 0));
+				//constraints x and y axis rotation
+				rigid_bodies.back()->setAngularFactor(btVector3(0, 0, 1));
+			}
 			///spring stoppers
 			if (letter == 'S')
 			{
@@ -197,6 +211,7 @@ namespace octet {
 			turn = new material(vec4(0, 0, 1, 1));
 			end = new material(vec4(1, 1, 1, 1));
 			character = new material(vec4(0, 1, 1, 0));
+			enemy = new material(vec4(1, 1, 0, 0));
 
 
 			join = btVector3(0, 0, 0);
@@ -298,6 +313,10 @@ namespace octet {
 					x += 1;
 					pos += vec3(1, 0, 0);
 					break;
+				case 'E': add_rigid_body(pos, box, enemy, c, true);
+					x += 1;
+					pos += vec3(1, 0, 0);
+					break;
 				case '-':
 				case '¦': add_rigid_body(pos, box, wall, c, false);
 					x += 1;
@@ -313,6 +332,9 @@ namespace octet {
 
 			app_scene = new visual_scene();
 
+			app_scene->create_default_camera_and_lights();
+			app_scene->get_camera_instance(0)->get_node()->translate(vec3(0, 4, 0));
+			
 			newScene();
 			loadTxt(4);
 
@@ -320,45 +342,17 @@ namespace octet {
 			material *green = new material(vec4(0, 1, 0, 1));
 
 			mat4t mat;
-
-			// ground
-			mat.loadIdentity();
-			mat.translate(0, 14, 0);
-			app_scene->add_shape(mat, new mesh_box(vec3(500, 12, 500)), green, false);
-
-			/*
-			app_scene->create_default_camera_and_lights();
-			app_scene->get_camera_instance(0)->get_node()->translate(vec3(0, 4, 0));
-
-			material *red = new material(vec4(1, 0, 0, 1));
-			material *green = new material(vec4(0, 1, 0, 1));
-			material *blue = new material(vec4(0, 0, 1, 1));
-
-			mat4t mat;
-			mat.translate(-3, 6, 0);
-			app_scene->add_shape(mat, new mesh_sphere(vec3(2, 2, 2), 2), red, true);
-
-			mat.loadIdentity();
-			mat.translate(0, 10, 0);
-			app_scene->add_shape(mat, new mesh_box(vec3(2, 2, 2)), red, true);
-
-			mat.loadIdentity();
-			mat.translate( 3, 6, 0);
-			app_scene->add_shape(mat, new mesh_cylinder(zcylinder(vec3(0, 0, 0), 2, 4)), blue, true);
+			
 
 			// ground
 			mat.loadIdentity();
 			mat.translate(0, -1, 0);
 			app_scene->add_shape(mat, new mesh_box(vec3(200, 1, 200)), green, false);
-			}
-			*/
 		}
 
 		/// this is called to draw the world
 		void draw_world(int x, int y, int w, int h)
 		{
-
-
 			int vx = 0, vy = 0;
 			get_viewport_size(vx, vy);
 			app_scene->begin_render(vx, vy);
@@ -391,11 +385,11 @@ namespace octet {
 				material *lightblue = new material(vec4(0, 1, 1, 1));
 
 				mat4t mat;
-
+				
 				// ground
 				mat.loadIdentity();
-				mat.translate(0, 14, 0);
-				app_scene->add_shape(mat, new mesh_box(vec3(500, 12, 500)), lightblue, false);
+				mat.translate(0, -1, 0);
+				app_scene->add_shape(mat, new mesh_box(vec3(200, 1, 200)), lightblue, false);
 			}
 			if (is_key_going_down('2') || is_key_going_down(VK_NUMPAD2))
 			{
@@ -405,11 +399,12 @@ namespace octet {
 				material *lightyellow = new material(vec4(1, 1, 0, 0));
 
 				mat4t mat;
+				
 
 				// ground
 				mat.loadIdentity();
-				mat.translate(0, 14, 0);
-				app_scene->add_shape(mat, new mesh_box(vec3(500, 12, 500)), lightyellow, false);
+				mat.translate(0, -1, 0);
+				app_scene->add_shape(mat, new mesh_box(vec3(200, 1, 200)), lightyellow, false);
 			}
 
 			if (is_key_going_down('3') || is_key_going_down(VK_NUMPAD3))
@@ -420,11 +415,12 @@ namespace octet {
 				material *magenta = new material(vec4(1, 0, 0, 0));
 
 				mat4t mat;
+				
 
 				// ground
 				mat.loadIdentity();
-				mat.translate(0, 14, 0);
-				app_scene->add_shape(mat, new mesh_box(vec3(500, 12, 500)), magenta, false);
+				mat.translate(0, -1, 0);
+				app_scene->add_shape(mat, new mesh_box(vec3(200, 1, 200)), magenta, false);
 			}
 			//KEY INPUTS
 			if (is_key_down(VK_SPACE))
