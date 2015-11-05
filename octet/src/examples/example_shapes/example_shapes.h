@@ -14,10 +14,17 @@ namespace octet {
 		// scene for drawing box
 		ref<visual_scene> app_scene;
 
+		// Needed for the physics simulation
+		///Bullet Physics
+		///set up world
 		btDefaultCollisionConfiguration config;
+		///handle collisions
 		btCollisionDispatcher *dispatcher;
+		///handle collisions
 		btDbvtBroadphase *broadphase;
+		///resolve collisions
 		btSequentialImpulseConstraintSolver *solver;
+		///physics world
 		btDiscreteDynamicsWorld *world;
 
 		mat4t worldCall;
@@ -47,6 +54,7 @@ namespace octet {
 
 
 	public:
+		///this is called when we construct the class before everything is initialised.
 		example_shapes(int argc, char **argv) : app(argc, argv) {
 
 			dispatcher = new btCollisionDispatcher(&config);
