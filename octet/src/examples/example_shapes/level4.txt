@@ -1,0 +1,27 @@
+﻿
+
+
+ W     W    WWWWW   W        W          WWWWWWW    W
+ W     W    W       W        W          W     W    W
+ WWWWWWW    WWWWW   W        W          W     W    W
+ W     W    W       W        W          W     W
+ W     W    WWWWW   WWWWWW   WWWWWW     WWWWWWW    W
+
+
+
+
+WWWWWWW     WWWWWWW     WWWWWW   WWWWW    WWWWW
+W     W     W     W     W         W        W
+WWWWWWW     WWWWWWW     WWWWWW     W        W
+W           W W         W           W        W
+W           W  W        WWWWWW   WWWWW    WWWWW
+            
+
+
+
+                        W
+                       WW
+                        W
+                        W
+                        W
+                      WWWWW
