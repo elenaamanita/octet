@@ -17,11 +17,11 @@
 
 W  WWWWWWWWWWWWW         WWWWWWWWWWWWW    WWWWWWWW    WWWWW
 W                                                         W
-W                    E             E             E        W W                               wwwwwwww                  W
+W                    E             E             E        W 
 WWWWWWWWW        WWWWWWWWWWWW             WWWWWWWWWWWWWWWWW
 W                                                         W
-W          C        E                E                    W 
-W                WWWWWW          E  WWWWWWWWW             W                                                          
+W          C        E                E       B B B        W 
+W  B  B  B              WWWWWW          E  WWWWWWWWW      W                                                          
 W WWWWWWWWWWWW                WWWWWW                      W
 W                E                                        W
 W         WWWWWWWWWWWWW           WWWWWWWWWWWWWW          W
