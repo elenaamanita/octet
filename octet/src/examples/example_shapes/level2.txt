@@ -6,42 +6,28 @@
 
 
 
-WWWWWWWW  WWWW  WWWWWW  WWWW WWW WWWWW WWWWWWWWW
-W                                              W
-WWWWWWW   WWWWWWWWWWWWWWWWW   WWWWWWWWWWW   WWWW  
-W                   E                          W
-WWWWWWWWWWWW    WWWWWWWWW    WWWWW   WWWWWW    W
-W                                              W
-W     E                          E             W
-WWWWWWWW     WWWWWWWWWW       WWWWWWWWWWWWWWW  W
-W                                              W
-W                                              W
-W                       B                      W
-W                                              W
-W                                              W
-W                                              W
-W                                              W
-W            B                      B          W
-W                                              W
-W                                              W
-W                        C                     W
-W                                              W
-W                                              W
-W                                   E          W
-W      E                                       W
-WWWWWWWWWWWWWWWWWWWWWWWWW   WWWWWWWWWWWWWWWW   W
-W                                              W
-W   B                        E                 W
-W               WWWWWWWWWWWWWWWWWWWWW          W
-W                                              W
-W         E                  E                 W
-WWWWWW WWWWWWWWW          WWWWWWWWWWWWWWW      W
-W                                              W
-W     E                                        W
-W WWWWWWWWWWW  WWWWWWWWWWWWWWWWWW              W
-W                                              W
-W                                              W
-W        WWWWWWWWWWWWWWW         WWWWWWWWWWWW  W
-W                           E                  W
-W   WWWWWWWW             WWWWWWWWW             W
-WWWWWW         WWWWWWWW             WWWWWWWWWWWW
+
+
+
+
+
+
+
+
+
+W  WWWWWWWWWWWWW         WWWWWWWWWWWWW    WWWWWWWW    WWWWW
+W                                                         W
+W                    E             E             E        W W                               wwwwwwww                  W
+WWWWWWWWW        WWWWWWWWWWWW             WWWWWWWWWWWWWWWWW
+W                                                         W
+W          C        E                E                    W 
+W                WWWWWW          E  WWWWWWWWW             W                                                          
+W WWWWWWWWWWWW                WWWWWW                      W
+W                E                                        W
+W         WWWWWWWWWWWWW           WWWWWWWWWWWWWW          W
+W                                                         W
+W           E                                             W
+W                            E               E            W
+W     WWWWWWW             WWWWWWWWW      WWWWWWWWW        W
+W  E               E                   E                  W
+WWWWWWW          WWWWWWW           WWWWWWWWWWWWWWWWW      W       
