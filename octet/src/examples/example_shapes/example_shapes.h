@@ -1,12 +1,19 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 // (C) Andy Thomason 2012-2014
-//
+//     Eleni Pakali 2015-2016
 // Modular Framework for OpenGLES2 rendering on multiple platforms.
 //
 
 #include <fstream>
 #include <sstream>
+#include <Windows.h>
+#include <mmsystem.h>
+#include <mciapi.h>
+#define Playsound
+#pragma comment(lib, "Winmm.lib")
+
+
 
 namespace octet {
 	/// Scene containing a box with octet.
@@ -40,23 +47,30 @@ namespace octet {
 
 		mesh_box *box, *bulletMesh, *blockerMesh;
 		mesh_sphere *sph;
-		material *wall, *floor, *turn, *end, *enemy, *character;
+		material *wall, *floor, *turn, *end, *enemyy, *character;
 
 		scene_node *cam;
 
 		///character_id
 		int character_node;
 
-		///enemy_id
-		int enemy_node;
-
 		///hinge variables
 		bool hingeOffsetNotSet = false;
 		btVector3 join;
 
-
 		string contents;
 
+		///try to add enemies, scores, sounds
+
+		// helper for drawing text
+		ref<text_overlay> overlay;
+
+		// text mesh object for overlay.
+		ref<mesh_text> text;
+		
+		// sounds
+		ALuint Ghost;
+	
 
 	public:
 		///this is called when we construct the class before everything is initialised.
@@ -142,9 +156,7 @@ namespace octet {
 
 			///enemy object
 			if (letter == 'E')
-			{
-				//gets the enemy node
-				enemy_node = rigid_bodies.size() - 1;
+			{	
 				//constraints z axis movement
 				rigid_bodies.back()->setLinearFactor(btVector3(1, 1, 0));
 				//constraints x and y axis rotation
@@ -211,7 +223,7 @@ namespace octet {
 			turn = new material(vec4(0, 0, 1, 1));
 			end = new material(vec4(1, 1, 1, 1));
 			character = new material(vec4(0, 1, 1, 0));
-			enemy = new material(vec4(1, 1, 0, 0));
+			enemyy = new material(vec4(1, 1, 0, 0));
 
 
 			join = btVector3(0, 0, 0);
@@ -313,7 +325,7 @@ namespace octet {
 					x += 1;
 					pos += vec3(1, 0, 0);
 					break;
-				case 'E': add_rigid_body(pos, box, enemy, c, true);
+				case 'E': add_rigid_body(pos, box, enemyy, c, true);
 					x += 1;
 					pos += vec3(1, 0, 0);
 					break;
@@ -332,12 +344,35 @@ namespace octet {
 
 			app_scene = new visual_scene();
 
+			//try to put background 
+			// create the overlay
+			overlay = new text_overlay();
+			// get the default font.
+			bitmap_font *font = overlay->get_default_font();
+			// create a box containing text (in pixels)
+			aabb bb(vec3(-100.5f, 200.0f, 10.0f), vec3(200, 100, 100));
+			text = new mesh_text(font, "", &bb);
+
+			// add the mesh to the overlay.
+			overlay->add_mesh_text(text);
+			resource_dict dict;
+
+			printf("resource)dict has been created/n");
+
+
 			app_scene->create_default_camera_and_lights();
 			app_scene->get_camera_instance(0)->get_node()->translate(vec3(0, 4, 0));
 			
+			// sounds
+			///Ghost = resource_dict::get_sound_handle(AL_FORMAT_MONO16, "src/examples/example_shapes/Ghost.wav");
+			
+		
 			newScene();
 			loadTxt(4);
 
+			// sounds( don't want to wait until the playback is over and in loop:)
+			Playsound("Ghost.wav", GetModuleHandle(NULL), SND_FILENAME | SND_ASYNC | SND_LOOP);
+			
 			///material *background = new material(new image("example_shapes/background.gif"), NULL, atten_shader, true);
 			material *green = new material(vec4(0, 1, 0, 1));
 
@@ -373,10 +408,13 @@ namespace octet {
 			// update matrices. assume 30 fps.
 			app_scene->update(1.0f / 30);
 
+			// clear the background to black
+			glClearColor(0.7, 0.5, 0.0, 0.0);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 			// draw the scene
 			app_scene->render((float)vx / vy);
-
-
+			
 			if (is_key_going_down('1') || is_key_going_down(VK_NUMPAD1))
 			{
 				newScene();
@@ -385,7 +423,7 @@ namespace octet {
 				material *lightblue = new material(vec4(0, 1, 1, 1));
 
 				mat4t mat;
-				
+
 				// ground
 				mat.loadIdentity();
 				mat.translate(0, -1, 0);
@@ -399,7 +437,7 @@ namespace octet {
 				material *lightyellow = new material(vec4(1, 1, 0, 0));
 
 				mat4t mat;
-				
+
 
 				// ground
 				mat.loadIdentity();
@@ -415,7 +453,7 @@ namespace octet {
 				material *magenta = new material(vec4(1, 0, 0, 0));
 
 				mat4t mat;
-				
+
 
 				// ground
 				mat.loadIdentity();
@@ -449,17 +487,18 @@ namespace octet {
 
 			
 
-			/*//bullet test
-			if (is_key_going_down('F'))
-			{
-			for (int i = 0; i < bullets.size(); i++)
-			{
-			bullets[i]->getRigidBodyA().applyTorqueImpulse(btVector3(0, 0, 500));
+				/*//bullet test
+				if (is_key_going_down('F'))
+				{
+				for (int i = 0; i < bullets.size(); i++)
+				{
+				bullets[i]->getRigidBodyA().applyTorqueImpulse(btVector3(0, 0, 500));
+				}
+				*/
 			}
-			*/
-		}
-	};
-}
+		};
+	}
+
 	
 
 
