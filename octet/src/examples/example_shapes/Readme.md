@@ -41,5 +41,8 @@ Setting up objects by reading text file.
 youtube video:
 https://www.youtube.com/watch?v=RCMsIyrOjuU&feature=youtu.be
 
+***Screenshots of the game:***
 https://raw.githubusercontent.com/elenaamanita/octet/26199013addc60c3945641cf9518ffce2a7a10dd/octet/src/examples/example_shapes/Hello.png
+
+![ScreenShot](https://raw.github.com/{elenaamanita}/{octet}/{master}/{src/examples/example_shapes/Hello.png})
 
