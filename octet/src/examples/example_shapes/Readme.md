@@ -44,5 +44,9 @@ https://www.youtube.com/watch?v=RCMsIyrOjuU&feature=youtu.be
 ***Screenshots of the game:***
 https://raw.githubusercontent.com/elenaamanita/octet/26199013addc60c3945641cf9518ffce2a7a10dd/octet/src/examples/example_shapes/Hello.png
 
-![ScreenShot](https://github.com/elenaamanita/octet/blob/26199013addc60c3945641cf9518ffce2a7a10dd/octet/src/examples/example_shapes/Hello.png)
+https://github.com/elenaamanita/octet/blob/26199013addc60c3945641cf9518ffce2a7a10dd/octet/src/examples/example_shapes/Level1.png
+
+https://github.com/elenaamanita/octet/blob/26199013addc60c3945641cf9518ffce2a7a10dd/octet/src/examples/example_shapes/Level2.png
+
+https://github.com/elenaamanita/octet/blob/26199013addc60c3945641cf9518ffce2a7a10dd/octet/src/examples/example_shapes/Level3.png
 
