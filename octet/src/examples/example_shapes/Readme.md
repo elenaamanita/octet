@@ -1,4 +1,15 @@
+---
+title:The Cube
+description: Puzzle Level Game
+author: Eleni Paskali
+tags: master, project octet frsmework
+created: 2015 Oct 15
+modified: 2015 Nov 15
+---
 The Cube
+---------
+---------
+##Puzzle Level Game
 
 The Cube is a puzzle level game. The purpose is to throw all the cubes before you run out of time. 
 There are invisible obstacles where you cannot access the cubes in order to throw them, you have to find 
@@ -25,8 +36,10 @@ Collision callbacks
 Setting up objects by reading text file.
 
 
-You can see below a demo of the work:
+***You can see below a demo of the work:***
 
 youtube video:
 https://www.youtube.com/watch?v=RCMsIyrOjuU&feature=youtu.be
+
+https://raw.githubusercontent.com/elenaamanita/octet/26199013addc60c3945641cf9518ffce2a7a10dd/octet/src/examples/example_shapes/Hello.png
 
