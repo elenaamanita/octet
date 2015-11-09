@@ -82,8 +82,6 @@ https://www.youtube.com/watch?v=RCMsIyrOjuU&feature=youtu.be
 
 ***Screenshots of the game:***
 
-https://www.dropbox.com/home/Camera%20Uploads/screenshoots?preview=Screenshot+(101).png?raw=true
-
 https://raw.githubusercontent.com/elenaamanita/octet/26199013addc60c3945641cf9518ffce2a7a10dd/octet/src/examples/example_shapes/Hello.png
 
 https://github.com/elenaamanita/octet/blob/26199013addc60c3945641cf9518ffce2a7a10dd/octet/src/examples/example_shapes/Level1.png
