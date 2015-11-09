@@ -82,7 +82,7 @@ https://www.youtube.com/watch?v=RCMsIyrOjuU&feature=youtu.be
 
 ***Screenshots of the game:***
 
-https://dl.dropboxusercontent.com/CameraUploads/screenshoots/Screenshot(101).png?raw=true
+https://dl.dropboxusercontent.com/Camera%20Uploads/screenshoots/Screenshot(101).png?raw=true
 
 https://raw.githubusercontent.com/elenaamanita/octet/26199013addc60c3945641cf9518ffce2a7a10dd/octet/src/examples/example_shapes/Hello.png
 
